@@ -26,6 +26,8 @@ export const getUserById = async (id: string) => prisma.user.findUnique({where: 
 
 export const getUserByEmail = async (email: string) => prisma.user.findUnique({where: {email}});
 
+export const getUserByRefreshToken = async (refreshToken: string) => prisma.user.findFirst({where: {refreshToken}})
+
 export const updatetUserById = async (id: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {id}});
 
 export const updatetUserByEmail = async (email: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {email}});

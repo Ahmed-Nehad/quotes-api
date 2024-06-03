@@ -1,11 +1,11 @@
 import { Hono } from "hono";
 import { zValidator } from '@hono/zod-validator'
 import { userSigninSchema, userSignupSchema } from "../schemas/userSchema";
-import { deleteCookie, setCookie } from "hono/cookie";
+import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { Variables } from "../variables";
 import "dotenv/config";
 import { generateTokens, refreshTokenCookieOpt } from "../handllers/tokens";
-import { createUser, deleteUserByEmail, getUserByEmail, updatetUserByEmail } from "../database/users";
+import { createUser, deleteUserById, getUserByEmail, getUserByRefreshToken, updatetUserByEmail, updatetUserById } from "../database/users";
 import bcrypt from 'bcrypt';
 
 const app = new Hono<{ Variables: Variables }>();
@@ -53,19 +53,17 @@ app.post('/sign-in', zValidator('json', userSigninSchema), async c => {
 
 app.post('/sign-out', zValidator('json', userSigninSchema), async (c, next) => {
 
-    const user = c.req.valid('json');
+    const refreshTokenCookie = getCookie(c, 'refreshToken')
 
-    let dbUser = await getUserByEmail(user.email)
+    if(!refreshTokenCookie) return c.body(null, 204)
 
-    if(!dbUser) return c.json({ message: 'Invalid email or password' }, 401)
+    const user = await getUserByRefreshToken(refreshTokenCookie)
 
-        const isSamePassword = await bcrypt.compare(user.password, dbUser.password)
+    if(!user) return c.body(null, 204)
 
-    if(!isSamePassword) return c.json({ message: 'Invalid email or password' }, 401)
-    
-    await updatetUserByEmail(user.email, {refreshToken: ''})
+    await updatetUserById(user.id, {refreshToken: ''})
 
-    if(testing) await deleteUserByEmail(user.email)
+    if(testing) await deleteUserById(user.id)
 
     deleteCookie(c, 'refreshToken', refreshTokenCookieOpt)
     
