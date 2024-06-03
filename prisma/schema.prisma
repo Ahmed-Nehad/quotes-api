@@ -26,6 +26,11 @@ model User {
   refreshToken String
 }
 
+enum payPeriod {
+  MONTH
+  YEAR
+}
+
 model Plan {
   name         String  @id @map("_id")
   default      Boolean @default(false)
@@ -35,7 +40,15 @@ model Plan {
   User         User[]
 }
 
-enum payPeriod {
-  MONTH
-  YEAR
+model Quote {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  text         String   @unique
+  author       String   @default("Anonymous")
+  category     category @relation(fields: [categoryName], references: [name])
+  categoryName String
+}
+
+model category {
+  name  String  @id @map("_id")
+  Quote Quote[]
 }
