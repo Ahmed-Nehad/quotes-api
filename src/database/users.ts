@@ -14,8 +14,8 @@ export const createUser = async (user: userSignupType, refreshToken: string) => 
         name,
         email,
         password,
-        apiKey: generateApiKey(),
         refreshToken,
+        apiKey: generateApiKey(),
         plan: { connect: { name: defaultPlan.name } }
     } })
 }
@@ -27,6 +27,8 @@ export const getUserById = async (id: string) => prisma.user.findUnique({where: 
 export const getUserByEmail = async (email: string) => prisma.user.findUnique({where: {email}});
 
 export const getUserByRefreshToken = async (refreshToken: string) => prisma.user.findFirst({where: {refreshToken}})
+
+export const getUserByApiKey = async (apiKey: string) => prisma.user.findFirst({where: {apiKey}, include: { plan: true }})
 
 export const updatetUserById = async (id: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {id}});
 

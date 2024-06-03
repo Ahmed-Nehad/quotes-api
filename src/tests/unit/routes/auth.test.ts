@@ -26,6 +26,7 @@ describe('auth routes test', () => {
         
         assert.strictEqual(res.status, 201, `status code must be 201 not ${res.status}`);
         assert.ok('token' in body && typeof body['token'] === 'string', `couldn't find any valid token`);
+        assert.ok('apiKey' in body && typeof body['apiKey'] === 'string', `couldn't find any valid apiKey`);
         assert.notStrictEqual(refreshTokenCookie, undefined, `couldn't any refresh token`);
     })
 
@@ -46,6 +47,7 @@ describe('auth routes test', () => {
         
         assert.strictEqual(res.status, 200, `status code must be 200 not ${res.status}`);
         assert.ok('token' in body && typeof body['token'] === 'string', `couldn't find any valid token`);
+        assert.ok('apiKey' in body && typeof body['apiKey'] === 'string', `couldn't find any valid apiKey`);
         assert.notStrictEqual(refreshTokenCookie, undefined, `couldn't any refresh token`);
     })
     

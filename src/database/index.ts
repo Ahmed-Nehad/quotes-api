@@ -3,6 +3,38 @@ import { PrismaClient, Prisma } from '@prisma/client'
 const prisma = new PrismaClient().$extends({
   query: {
     user: {
+      async findFirst({ args, query }) {
+        const user = await query(args)
+
+        if(user && user.payDate){
+          const payDate = user.payDate as Date;
+          const next3dDays = new Date(payDate.getTime() + 2592000000) // 30d -> 30 * 24 * 60 * 60 * 1000
+          const currentDate = new Date()
+          if(currentDate > next3dDays){
+            user.noCalls = 0
+            user.payDate = currentDate
+            await prisma.user.update({where: {id: user.id}, data: {payDate: currentDate, noCalls: 0}})
+          }
+        }
+
+        return user
+      },
+      async findUnique({ args, query }) {
+        const user = await query(args)
+
+        if(user && user.payDate){
+          const payDate = user.payDate as Date;
+          const next3dDays = new Date(payDate.getTime() + 2592000000) // 30d -> 30 * 24 * 60 * 60 * 1000
+          const currentDate = new Date()
+          if(currentDate > next3dDays){
+            user.noCalls = 0
+            user.payDate = currentDate
+            await prisma.user.update({where: {id: user.id}, data: {payDate: currentDate, noCalls: 0}})
+          }
+        }
+
+        return user
+      },
       async create({ args, query }) {
         if (args.data.password) {
           args.data.password = await bcrypt.hash(args.data.password, 10);
@@ -22,8 +54,6 @@ const prisma = new PrismaClient().$extends({
     }
   }
 });
-
-prisma.$extends
 
 export default prisma
 export { Prisma }

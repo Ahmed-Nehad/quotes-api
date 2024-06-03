@@ -26,7 +26,7 @@ app.post('/sign-up', zValidator('json', userSignupSchema), async c => {
 
     setCookie(c, 'refreshToken', refreshToken, refreshTokenCookieOpt);
     
-    return c.json({ token }, 201);
+    return c.json({ token, apiKey: dbUser.apiKey }, 201);
 })
 
 app.post('/sign-in', zValidator('json', userSigninSchema), async c => {
@@ -47,7 +47,7 @@ app.post('/sign-in', zValidator('json', userSigninSchema), async c => {
 
     setCookie(c, 'refreshToken', refreshToken, refreshTokenCookieOpt);
     
-    return c.json({ token });
+    return c.json({ token, apiKey: dbUser.apiKey });
 })
 
 

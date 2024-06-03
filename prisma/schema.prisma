@@ -21,6 +21,7 @@ model User {
   plan         Plan       @relation(fields: [planId], references: [name])
   planId       String
   payPeriod    payPeriod?
+  payDate      DateTime   @default(now())
   apiKey       String
   noCalls      Int        @default(0)
   refreshToken String

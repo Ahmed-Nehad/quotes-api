@@ -6,6 +6,22 @@ export const getQuotes = async () => prisma.quote.findMany()
 
 export const getQuoteById = async (id: string) => prisma.quote.findUnique({ where: {id} })
 
+export const getRandomQuote = async (categoryName?: string, author?: string) => {
+    const skip = await prisma.quote.count() - 1
+    const quotes = await prisma.quote.findMany({
+        take: 1, 
+        skip,
+        where: {categoryName, author},
+        select: {
+            text: true,
+            categoryName: true,
+            author: true
+        }
+    })
+
+    return quotes[0] || null
+}
+
 export const updateQuoteById = async (id: string, data: Prisma.QuoteUpdateInput) => prisma.quote.update({ data, where: {id} })
 
 export const deleteQuoteById = async (id: string) => prisma.quote.delete({ where: {id} })
