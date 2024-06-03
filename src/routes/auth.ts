@@ -5,7 +5,7 @@ import { deleteCookie, setCookie } from "hono/cookie";
 import { Variables } from "../variables";
 import "dotenv/config";
 import { generateTokens, refreshTokenCookieOpt } from "../handllers/tokens";
-import { createUser, deleteUserByEmail, getUserByEmail, updatetUserByEmail } from "../database/user";
+import { createUser, deleteUserByEmail, getUserByEmail, updatetUserByEmail } from "../database/users";
 import bcrypt from 'bcrypt';
 
 const app = new Hono<{ Variables: Variables }>();
