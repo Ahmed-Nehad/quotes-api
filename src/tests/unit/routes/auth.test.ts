@@ -3,7 +3,7 @@ import app from "../../../app";
 import assert from "node:assert";
 import { userSignupType } from "../../../schemas/userSchema";
 
-describe('auth test', () => {
+describe('auth routes test', () => {
 
     const randomNumber = Math.floor(Math.random() * 1000)
     const testUser: userSignupType = {
