@@ -7,7 +7,7 @@ export const userSignupSchema = z.object({
     name: z.string({ required_error: 'name field is required', invalid_type_error: 'name field must be a string' }).min(3, { message: 'The name must be more than three letters'}),
     email,
     password,
-    role: z.enum(['USER', 'ADMIN']).default('USER')
+    role: z.enum(['USER', 'ADMIN']).default('USER').optional()
 });
 
 export const userSigninSchema = z.object({
