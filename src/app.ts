@@ -17,5 +17,4 @@ app.route('/v1', usersRoute);
 app.route('/v1', plansRoute);
 app.route('/v1', categoriesRoute);
 
-
 export default app;
