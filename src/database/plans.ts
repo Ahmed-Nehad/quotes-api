@@ -2,7 +2,7 @@ import prisma, { Prisma } from ".";
 
 export const createPlan = async (data: Prisma.PlanCreateInput) => prisma.plan.create({ data })
 
-export const getPlans = async () => prisma.plan.findMany()
+export const getPlans = async (where?: Prisma.PlanWhereInput) => prisma.plan.findMany({ where })
 
 export const getPlanByName = async (name: string) => prisma.plan.findUnique({ where: {name} })
 

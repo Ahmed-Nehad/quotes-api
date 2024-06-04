@@ -1,1 +1,1 @@
-export type Variables = { email?: string }
+export type Variables = { email?: string, role?: 'ADMIN' | 'USER' }

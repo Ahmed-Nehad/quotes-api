@@ -20,7 +20,7 @@ app.post('/sign-up', zValidator('json', userSignupSchema), async c => {
 
     if(dbUser) return c.json({ message: 'User already exist' }, 409)
     
-    const { token, refreshToken } = await generateTokens(user.email);
+    const { token, refreshToken } = await generateTokens(user.email, user.role);
     
     dbUser = await createUser(user, refreshToken);
 
@@ -41,7 +41,7 @@ app.post('/sign-in', zValidator('json', userSigninSchema), async c => {
 
     if(!isSamePassword) return c.json({ message: 'Invalid email or password' }, 401)
 
-    const { token, refreshToken } = await generateTokens(user.email);
+    const { token, refreshToken } = await generateTokens(dbUser.email, dbUser.role);
     
     await updatetUserByEmail(user.email, { refreshToken });
 

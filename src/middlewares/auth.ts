@@ -19,6 +19,7 @@ export default createMiddleware(async (c, next) => {
         if(!('email' in decoded)) return c.text("You need valid Tokens", 401);
 
         c.set('email', decoded.email as string);
+        c.set('role', decoded.role as string);
     }catch{
         const refreshToken = getCookie(c, 'refreshToken');
         if(!refreshToken) return c.text("You need valid Tokens", 401);
@@ -32,13 +33,16 @@ export default createMiddleware(async (c, next) => {
 
             if(!user || user.refreshToken !== refreshToken) return c.text("You need valid Tokens", 401);
 
-            const { token, refreshToken: newRefreshToken } = await generateTokens(decoded.email as string);
+            const { token, refreshToken: newRefreshToken } = await generateTokens(user.email, user.role);
 
             await updatetUserByEmail(decoded.email as string, {refreshToken: ''})
 
             setCookie(c, 'refreshToken', newRefreshToken, refreshTokenCookieOpt);
 
             c.header('X-Token', token);
+
+            c.set('email', user.email);
+            c.set('role', user.role);
 
         } catch { return c.text("You need valid Tokens", 401) } 
     }

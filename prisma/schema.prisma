@@ -25,11 +25,19 @@ model User {
   apiKey       String
   noCalls      Int        @default(0)
   refreshToken String
+  role         role       @default(USER)
+
+  @@index([apiKey, email])
 }
 
 enum payPeriod {
   MONTH
   YEAR
+}
+
+enum role {
+  USER
+  ADMIN
 }
 
 model Plan {
@@ -47,6 +55,8 @@ model Quote {
   author       String   @default("Anonymous")
   category     category @relation(fields: [categoryName], references: [name])
   categoryName String
+
+  @@index([categoryName, author])
 }
 
 model category {

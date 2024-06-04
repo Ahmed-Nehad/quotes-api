@@ -20,7 +20,7 @@ export const createUser = async (user: userSignupType, refreshToken: string) => 
     } })
 }
 
-export const getAllUsers = async () => prisma.user.findMany();
+export const getAllUsers = async (where?: Prisma.UserWhereInput) => prisma.user.findMany({where});
 
 export const getUserById = async (id: string) => prisma.user.findUnique({where: {id}});
 
@@ -28,7 +28,19 @@ export const getUserByEmail = async (email: string) => prisma.user.findUnique({w
 
 export const getUserByRefreshToken = async (refreshToken: string) => prisma.user.findFirst({where: {refreshToken}})
 
-export const getUserByApiKey = async (apiKey: string) => prisma.user.findFirst({where: {apiKey}, include: { plan: true }})
+export const getUserByApiKey = async (apiKey: string) => prisma.user.findFirst({
+    where: {apiKey}, 
+    select: {
+        email: true,
+        noCalls: true,
+        payDate: true,
+        plan: {
+            select: {
+                maxCalls: true,
+            }
+        }
+    }
+})
 
 export const updatetUserById = async (id: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {id}});
 
