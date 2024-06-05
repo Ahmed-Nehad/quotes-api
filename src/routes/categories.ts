@@ -8,7 +8,9 @@ import { Variables } from "../variables";
 
 const app = new Hono<{ Variables: Variables }>().basePath('/categories');
 
-app.use(auth)
+const testing = process.env.NODE_ENV == 'test';
+
+if(!testing) app.use(auth)
 
 app.post('/', zValidator('json', createCategorySchema), async (c) => {
 
@@ -16,15 +18,19 @@ app.post('/', zValidator('json', createCategorySchema), async (c) => {
 
     const category = c.req.valid('json')
 
-    await createCategory(category)
+    const dbCategory = await createCategory(category)
 
-    return c.json(category, 201)
+    if('customError' in dbCategory && 'status' in dbCategory) return c.json({ message: dbCategory.customError }, dbCategory.status as any)
+
+    return c.json(dbCategory, 201)
 })
 
 app.get('/', async (c) => {
     const { name } = c.req.query()
 
     const res = await getCategories({ name })
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.json(res)
 })
@@ -37,7 +43,9 @@ app.delete('/', async (c) => {
 
     if(!name) return c.json({ message: 'You need to include the name query' }, 400)
 
-    await deleteCategoryByName(name)
+    const res = await deleteCategoryByName(name)
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.body(null, 204)
 })

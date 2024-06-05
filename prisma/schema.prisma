@@ -16,7 +16,7 @@ datasource db {
 model User {
   id           String     @id @default(auto()) @map("_id") @db.ObjectId
   name         String
-  email        String     @unique
+  email        String
   password     String
   plan         Plan       @relation(fields: [planId], references: [name])
   planId       String
@@ -27,6 +27,7 @@ model User {
   refreshToken String
   role         role       @default(USER)
 
+  @@unique([email])
   @@index([apiKey, email])
 }
 

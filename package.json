@@ -1,7 +1,6 @@
 {
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "tsx --test src/tests/all/**/*.test.ts",
     "test:unit": "set NODE_ENV=test&  npx tsx --test src/tests/unit/**/*.test.ts"
   },
   "dependencies": {

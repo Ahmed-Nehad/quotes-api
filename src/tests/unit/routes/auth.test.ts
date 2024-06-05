@@ -2,15 +2,17 @@ import test, { describe } from "node:test";
 import app from "../../../app";
 import assert from "node:assert";
 import { userSignupType } from "../../../schemas/userSchema";
+import { deleteUserByEmail } from "../../../database/users";
+
+const randomNumber = Math.floor(Math.random() * 1000)
+const testUser: userSignupType = {
+    name: `exmaple${randomNumber}`,
+    email: `exmaple${randomNumber}@email.com`,
+    password: `password${randomNumber}`,
+} as any
 
 describe('auth routes test', () => {
 
-    const randomNumber = Math.floor(Math.random() * 1000)
-    const testUser: userSignupType = {
-        name: `exmaple${randomNumber}`,
-        email: `exmaple${randomNumber}@email.com`,
-        password: `password${randomNumber}`,
-    }
 
     test('POST /sign-up', async () => {
         const res = await app.request('/sign-up', {
@@ -63,6 +65,6 @@ describe('auth routes test', () => {
         
         assert.strictEqual(res.status, 204, `status code must be 204 not ${res.status}`);
     })
-})
+}).finally(async () => await deleteUserByEmail(testUser.email))
 
 

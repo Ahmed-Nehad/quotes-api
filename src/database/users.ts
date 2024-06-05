@@ -3,7 +3,7 @@ import { generateApiKey } from "../handllers/apiKeys";
 import { userSignupType } from "../schemas/userSchema";
 import { getDefaultPlan } from "./plans";
 
-export const createUser = async (user: userSignupType, refreshToken: string) => {
+export const createUser = async (user: userSignupType) => {
     
     const defaultPlan = await getDefaultPlan()
 
@@ -14,7 +14,7 @@ export const createUser = async (user: userSignupType, refreshToken: string) => 
         name,
         email,
         password,
-        refreshToken,
+        refreshToken: '',
         apiKey: generateApiKey(),
         plan: { connect: { name: defaultPlan.name } }
     } })
@@ -31,7 +31,7 @@ export const getUserByRefreshToken = async (refreshToken: string) => prisma.user
 export const getUserByApiKey = async (apiKey: string) => prisma.user.findFirst({
     where: {apiKey}, 
     select: {
-        email: true,
+        id: true,
         noCalls: true,
         payDate: true,
         plan: {

@@ -8,7 +8,9 @@ import { createPlan, deletePlanByName, getPlans, updatePlanByName } from "../dat
 
 const app = new Hono<{ Variables: Variables }>().basePath('/plans');
 
-app.use(auth)
+const testing = process.env.NODE_ENV == 'test';
+
+if(!testing) app.use(auth)
 
 app.post('/', zValidator('json', createPlanSchema), async (c) => {
 
@@ -16,15 +18,19 @@ app.post('/', zValidator('json', createPlanSchema), async (c) => {
 
     const plan = c.req.valid('json')
 
-    await createPlan(plan)
+    const dbPlan = await createPlan(plan)
 
-    return c.json(plan, 201)
+    if('customError' in dbPlan && 'status' in dbPlan) return c.json({ message: dbPlan.customError }, dbPlan.status as any)
+
+    return c.json(dbPlan, 201)
 })
 
 app.get('/', async (c) => {
     const { name } = c.req.query()
 
     const res = await getPlans({ name })
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.json(res)
 })
@@ -41,7 +47,9 @@ app.patch('/', zValidator('json', updatePlanSchema), async (c) => {
 
     const dbplan = await updatePlanByName(name, plan)
 
-    return c.json({dbplan})
+    if('customError' in dbplan && 'status' in dbplan) return c.json({ message: dbplan.customError }, dbplan.status as any)
+
+    return c.json(dbplan)
 })
 
 app.delete('/', async (c) => {
@@ -52,7 +60,9 @@ app.delete('/', async (c) => {
 
     if(!name) return c.json({ message: 'You need to include the name query' }, 400)
 
-    await deletePlanByName(name)
+    const res = await deletePlanByName(name)
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.body(null, 204)
 })

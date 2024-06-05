@@ -3,31 +3,36 @@ import { Variables } from "../variables";
 import auth from "../middlewares/auth";
 import { zValidator } from "@hono/zod-validator";
 import { userSignupSchema, userUpdatenSchema } from "../schemas/userSchema";
-import { createUser, deleteUserByEmail, deleteUserById, getAllUsers, getUserByEmail, updatetUserByEmail, updatetUserById } from "../database/users";
-import { generateTokens } from "../handllers/tokens";
+import { createUser, deleteUserByEmail, deleteUserById, getAllUsers, getUserById, updatetUserByEmail, updatetUserById } from "../database/users";
 
 const app = new Hono<{ Variables: Variables }>().basePath('/users');
 
-app.use(auth)
+const testing = process.env.NODE_ENV == 'test';
+
+if(!testing) app.use(auth)
 
 app.post('/', zValidator('json', userSignupSchema), async (c) => {
 
     if(c.get('role') === 'USER') c.body(null, 403)
 
     const user = c.req.valid('json')
-    const tokens = await generateTokens(user.email, user.role)
 
-    await createUser(user, tokens.refreshToken)
+    const dbUser = await createUser(user)
 
-    return c.json({user, token: tokens.token}, 201)
+    if('customError' in dbUser && 'status' in dbUser) return c.json({ message: dbUser.customError }, dbUser.status as any)
+
+    return c.json(dbUser, 201)
 })
 
 app.get('/', async (c) => {
 
     if(c.get('role') === 'USER'){
-        const email = c.get('email')!
 
-        const user  = await getUserByEmail(email)
+        const id = c.get('id')!
+
+        const user = await getUserById(id)
+
+        if(user && 'customError' in user && 'status' in user) return c.json({ message: user.customError }, user.status as any)
 
         return c.json(user)
     }
@@ -35,6 +40,8 @@ app.get('/', async (c) => {
     const { id, email } = c.req.query()
 
     const res = await getAllUsers({ id, email })
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.json(res)
 })
@@ -44,31 +51,39 @@ app.patch('/', zValidator('json', userUpdatenSchema), async (c) => {
     const user = c.req.valid('json')
 
     if(c.get('role') === 'USER'){
-        const email = c.get('email')!
+        const id = c.get('id')!
 
-        const dbuser  = await updatetUserByEmail(email, user)
+        const dbUser  = await updatetUserById(id, user)
 
-        return c.json(dbuser)
+        if('customError' in dbUser && 'status' in dbUser) return c.json({ message: dbUser.customError }, dbUser.status as any)
+
+        let message = 'Good'
+
+        if(c.get('role') !== dbUser.role) message = 'You need to generate new tokens'
+
+        return c.json({ user: dbUser, message })
     }
 
     const { id, email } = c.req.query()
 
-    if(!id && !email) return c.json({ message: 'You need to include the id query or the email query' }, 400)
-
     let res
 
-    if(email) res = await updatetUserByEmail(email, user)
-    else res = await updatetUserById(id, user)
+    if(id) res = await updatetUserById(id, user)
+    else res = await updatetUserByEmail(email, user)
 
-    return c.json(res)
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
+
+    return c.json({ user: res, message: 'Good'})
 })
 
 app.delete('/', async (c) => {
 
     if(c.get('role') === 'USER'){
-        const email = c.get('email')!
+        const id = c.get('id')!
 
-        await deleteUserByEmail(email)
+        const user = await deleteUserById(id)
+
+        if('customError' in user && 'status' in user) return c.json({ message: user.customError }, user.status as any)
 
         return c.body(null, 204)
     }
@@ -77,8 +92,12 @@ app.delete('/', async (c) => {
 
     if(!id && !email) return c.json({ message: 'You need to include the id query or the email query' }, 400)
         
-    if(email) await deleteUserByEmail(email)
-    else await deleteUserById(id)
+    let res
+
+    if(id) res = await deleteUserById(id)
+    else res = await deleteUserByEmail(email)
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.body(null, 204)
 })

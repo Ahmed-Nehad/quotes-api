@@ -1,9 +1,6 @@
 import { verify} from 'hono/jwt'
-import { getCookie, setCookie } from "hono/cookie";
 import "dotenv/config";
 import { createMiddleware } from 'hono/factory';
-import { generateTokens, refreshTokenCookieOpt } from '../handllers/tokens';
-import { getUserByEmail, updatetUserByEmail } from '../database/users';
 
 export default createMiddleware(async (c, next) => {
 
@@ -16,35 +13,12 @@ export default createMiddleware(async (c, next) => {
     try{
         const decoded = await verify(token, process.env.TOKEN_SECRET!);
 
-        if(!('email' in decoded)) return c.text("You need valid Tokens", 401);
+        if(!('id' in decoded)) return c.text("You need valid a token", 401);
 
-        c.set('email', decoded.email as string);
+        c.set('id', decoded.id as string);
         c.set('role', decoded.role as string);
-    }catch{
-        const refreshToken = getCookie(c, 'refreshToken');
-        if(!refreshToken) return c.text("You need valid Tokens", 401);
-
-        try {
-            const decoded = await verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!);
-
-            if(!('email' in decoded)) return c.text("You need valid Tokens", 401);
-
-            const user = await getUserByEmail(decoded.email as string)
-
-            if(!user || user.refreshToken !== refreshToken) return c.text("You need valid Tokens", 401);
-
-            const { token, refreshToken: newRefreshToken } = await generateTokens(user.email, user.role);
-
-            await updatetUserByEmail(decoded.email as string, {refreshToken: ''})
-
-            setCookie(c, 'refreshToken', newRefreshToken, refreshTokenCookieOpt);
-
-            c.header('X-Token', token);
-
-            c.set('email', user.email);
-            c.set('role', user.role);
-
-        } catch { return c.text("You need valid Tokens", 401) } 
+    } catch {
+        return c.json({ message: 'You need valid a token' }, 401)
     }
 
     await next()

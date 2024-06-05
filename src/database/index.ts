@@ -1,7 +1,37 @@
 import bcrypt from 'bcrypt'
 import { PrismaClient, Prisma } from '@prisma/client'
+
 const prisma = new PrismaClient().$extends({
   query: {
+    $allModels: {
+      $allOperations({ args, query }) {
+        return (async () => {
+          try {
+            return await query(args);
+          } catch (error) {
+            let customError, status
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+              if (error.code === 'P2002') {
+                customError = `${(error.meta!.target as string).split('_')[1]} already exist`;
+                status = 409
+              } else if (error.code === 'P2023') {
+                customError = `Could't find any thing with this id`;
+                status = 404
+              } else {
+                console.error(1, error)
+                customError = `unknown Error`;
+                status = 500
+              }
+            } else {
+              console.error(2, error)
+              customError = 'unknown Error'
+              status = 500
+            }
+            return { customError, status }
+          }
+        })();
+      }
+    },
     user: {
       async findFirst({ args, query }) {
         const user = await query(args)

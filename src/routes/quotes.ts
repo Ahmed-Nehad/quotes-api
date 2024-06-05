@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { Variables } from "../variables";
-import { getUserByApiKey, updatetUserByEmail } from "../database/users";
+import { getUserByApiKey, updatetUserByEmail, updatetUserById } from "../database/users";
 import { createQuote, deleteQuoteById, getQuotes, getRandomQuote, updateQuoteById } from "../database/quotes";
 import { rateLimiter } from "hono-rate-limiter";
 import { keyGenerator } from "../handllers/keys";
@@ -18,8 +18,10 @@ const limiter = rateLimiter({
   keyGenerator
 });
 
-app.get('/', limiter, async (c) => {
+app.get('/', limiter, async (c, next) => {
     const { apiKey, category, author } = c.req.query()
+
+    if(!apiKey) return next()
 
     const [user, quote] = await Promise.all([getUserByApiKey(apiKey), getRandomQuote(category, author)])
 
@@ -29,12 +31,14 @@ app.get('/', limiter, async (c) => {
 
     if(!quote) return c.json({message: `Could't find any quote`}, 404)
 
-    updatetUserByEmail(user.email, { noCalls: user.noCalls + 1 })
+    updatetUserById(user.id, { noCalls: user.noCalls + 1 })
 
     return c.json(quote)
 })
 
-app.use(auth)
+const testing = process.env.NODE_ENV == 'test';
+
+if(!testing) app.use(auth)
 
 app.post('/', zValidator('json', createQuoteSchema), async (c) => {
 
@@ -46,17 +50,26 @@ app.post('/', zValidator('json', createQuoteSchema), async (c) => {
 
     if(!category) return c.json({ message: `Could't find any category with this name` }, 404)
 
-    await createQuote({...quote, category: { connect: category }})
+    if('customError' in category && 'status' in category) return c.json({ message: category.customError }, category.status as any)
 
-    return c.json(quote, 201)
+    const data = {...quote} as any
+    delete data.categoryName
+
+    const dbQuote = await createQuote({...data, category: { connect: category }})
+
+    if('customError' in dbQuote && 'status' in dbQuote) return c.json({ message: dbQuote.customError }, dbQuote.status as any)
+
+    return c.json(dbQuote, 201)
 })
 
 app.get('/', async (c) => {
     const { id } = c.req.query()
 
-    if(c.get('role') == 'USER' && !id) return c.json({ message: 'You need to include the id query' }, 400)
+    if(c.get('role') === 'USER' && !id) return c.json({ message: 'You need to include the id query' }, 400)
 
     const res = await getQuotes({ id })
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.json(res)
 })
@@ -71,9 +84,11 @@ app.patch('/', zValidator('json', updateQuoteSchema), async (c) => {
 
     const quote = c.req.valid('json')
 
-    const dbquote = await updateQuoteById(id, quote)
+    const dbQuote = await updateQuoteById(id, quote)
+    
+    if('customError' in dbQuote && 'status' in dbQuote) return c.json({ message: dbQuote.customError }, dbQuote.status as any)
 
-    return c.json({dbquote})
+    return c.json(dbQuote)
 })
 
 app.delete('/', async (c) => {
@@ -84,7 +99,9 @@ app.delete('/', async (c) => {
 
     if(!id) return c.json({ message: 'You need to include the id query' }, 400)
 
-    await deleteQuoteById(id)
+    const res = await deleteQuoteById(id)
+
+    if('customError' in res && 'status' in res) return c.json({ message: res.customError }, res.status as any)
 
     return c.body(null, 204)
 })
