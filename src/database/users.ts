@@ -16,7 +16,8 @@ export const createUser = async (user: userSignupType) => {
         password,
         refreshToken: '',
         apiKey: generateApiKey(),
-        plan: { connect: { name: defaultPlan.name } }
+        plan: { connect: { name: defaultPlan.name } },
+        subscriptionId: ''
     } })
 }
 

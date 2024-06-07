@@ -53,9 +53,9 @@ describe('users route test', async () => {
         { method: 'DELETE', query: true, status: 204 },
     ]
 
-    await createPlan({ name: 'testFree', annuallyCost: 5, maxCalls: 5, monthlyCost: 5, default: true })
+    await createPlan({ name: 'testFree', annuallyCost: 0, maxCalls: 0, monthlyCost: 5, default: true, annuallyPlanId: '', monthlyPlanId: '' })
 
-    test('routes tests', async t => {
+    await test('routes tests', async t => {
         for(const { method, query, status, headers, body, json, testRes } of CRUD){
 
             const thisQuery = query ? `?id=${testData.id}` : '';
@@ -82,4 +82,4 @@ describe('users route test', async () => {
         }
     })
 
-}).finally(async () => await deletePlanByName('testFree'))
+}).then(() => setTimeout(() => deletePlanByName('testFree'), 1000))

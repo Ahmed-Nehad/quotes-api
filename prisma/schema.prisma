@@ -14,18 +14,20 @@ datasource db {
 }
 
 model User {
-  id           String     @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String
-  password     String
-  plan         Plan       @relation(fields: [planId], references: [name])
-  planId       String
-  payPeriod    payPeriod?
-  payDate      DateTime   @default(now())
-  apiKey       String
-  noCalls      Int        @default(0)
-  refreshToken String
-  role         role       @default(USER)
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  email          String
+  password       String
+  subscriptionId String
+  active         Boolean    @default(false)
+  plan           Plan       @relation(fields: [planId], references: [name])
+  planId         String
+  payPeriod      payPeriod?
+  payDate        DateTime   @default(now())
+  apiKey         String
+  noCalls        Int        @default(0)
+  refreshToken   String
+  role           role       @default(USER)
 
   @@unique([email])
   @@index([apiKey, email])
@@ -42,12 +44,14 @@ enum role {
 }
 
 model Plan {
-  name         String  @id @map("_id")
-  default      Boolean @default(false)
-  monthlyCost  Int
-  annuallyCost Int
-  maxCalls     Int
-  User         User[]
+  name           String  @id @map("_id")
+  default        Boolean @default(false)
+  monthlyPlanId  String
+  monthlyCost    Int
+  annuallyPlanId String
+  annuallyCost   Int
+  maxCalls       Int
+  User           User[]
 }
 
 model Quote {

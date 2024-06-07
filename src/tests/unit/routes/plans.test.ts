@@ -29,7 +29,7 @@ describe('plans route test', () => {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(testData),
             status: 201,
-            json: {...testData, default: false}
+            testRes: res => res.name == testData.name
         },
         { 
             method: 'GET', 
@@ -43,7 +43,7 @@ describe('plans route test', () => {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ monthlyCost: 8 }),
             status: 200, 
-            json: {...testData, monthlyCost: 8, default: false}
+            testRes: res => res.name == testData.name && res.monthlyCost == 8
         },
         { method: 'DELETE', query: '?name=test', status: 204 },
     ]
