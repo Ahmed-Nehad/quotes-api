@@ -19,11 +19,11 @@ const limiter = rateLimiter({
 });
 
 app.get('/', limiter, async (c, next) => {
-    const { apiKey, category, author } = c.req.query()
+    const { key, category, author } = c.req.query()
 
-    if(!apiKey) return next()
+    if(!key) return next()
 
-    const [user, quote] = await Promise.all([getUserByApiKey(apiKey), getRandomQuote(category, author)])
+    const [user, quote] = await Promise.all([getUserByApiKey(key), getRandomQuote(category, author)])
 
     if(!user) return c.json({ message: 'Invalid apiKey' }, 401)
 

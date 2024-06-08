@@ -9,11 +9,11 @@ export const createPlanSchema = z.object({
     monthlyCost: z.number({ 
         required_error: 'monthlyCost field is required', 
         invalid_type_error: 'monthlyCost field must be a number' 
-    }),
+    }).gt(0),
     annuallyCost: z.number({ 
         required_error: 'annuallyCost field is required', 
         invalid_type_error: 'annuallyCost field must be a number' 
-    }),
+    }).gt(0),
     maxCalls: z.number({ 
         required_error: 'maxCalls field is required', 
         invalid_type_error: 'maxCalls field must be a number' 
@@ -29,11 +29,11 @@ export const updatePlanSchema = z.object({
     monthlyCost: z.number({ 
         required_error: 'monthlyCost field is required', 
         invalid_type_error: 'monthlyCost field must be a number' 
-    }).optional(),
+    }).gt(0).optional(),
     annuallyCost: z.number({ 
         required_error: 'annuallyCost field is required', 
         invalid_type_error: 'annuallyCost field must be a number' 
-    }).optional(),
+    }).gt(0).optional(),
     maxCalls: z.number({ 
         required_error: 'maxCalls field is required', 
         invalid_type_error: 'maxCalls field must be a number' 
