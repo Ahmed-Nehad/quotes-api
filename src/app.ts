@@ -4,6 +4,7 @@ import authRoute from './routes/auth'
 import quotesRoute from './routes/quotes'
 import usersRoute from './routes/users'
 import plansRoute from './routes/plans'
+import subscriptionsRoute from './routes/subscriptions'
 import categoriesRoute from './routes/categories'
 
 const app = new Hono();
@@ -16,5 +17,6 @@ app.route('/v1', quotesRoute);
 app.route('/v1', usersRoute);
 app.route('/v1', plansRoute);
 app.route('/v1', categoriesRoute);
+app.route('/v1', subscriptionsRoute);
 
 export default app;

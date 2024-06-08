@@ -157,8 +157,8 @@ export const createSubscription = async (planId: string) => {
                 locale: 'en-US',
                 shipping_preference: 'NO_SHIPPING',
                 user_action: 'SUBSCRIBE_NOW',
-                return_url: `${process.env.URL}/return`,
-                cancel_url: `${process.env.URL}/cancel`,
+                return_url: `${process.env.URL}/v1/subscriptions/return`,
+                cancel_url: `${process.env.URL}/v1/subscriptions/cancle`,
             },
         }),
     });

@@ -43,6 +43,11 @@ export const getUserByApiKey = async (apiKey: string) => prisma.user.findFirst({
     }
 })
 
+export const getUserBySubscriptionId = async (subscriptionId: string) => prisma.user.findFirst({
+    where: { subscriptionId }, 
+    select: { id: true }
+})
+
 export const updatetUserById = async (id: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {id}});
 
 export const updatetUserByEmail = async (email: string, data: Prisma.UserUpdateInput) => prisma.user.update({data, where: {email}});
