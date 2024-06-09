@@ -1,7 +1,7 @@
 
 # Quotes API
 
-This project is a backend service for providing quotes through an API, supporting user authentication, subscription plans, and PayPal integration for subscription upgrades. It is built with Node.js, Hono, Prisma, MongoDB, JWT and paypal.
+A backend service for providing quotes through an API, supporting user authentication, subscription plans, and PayPal integration for subscription upgrades. It is built with Node.js, Hono, Prisma, MongoDB, JWT and paypal.
 
 
 ## Features
